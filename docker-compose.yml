@@ -2,7 +2,13 @@ version: '3'
 
 services:
   db:
-    image: postgres
+    image: postgres:11.5-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=tinpenny_root
+      - POSTGRES_PASSWORD=tinpenny_password
+      - POSTGRES_DB=tinpenny
     ports:
       - "55432:5432"
   web:
@@ -17,3 +23,12 @@ services:
     environment:
       - DEBUG=1
       - SECRET_KEY=foobar
+      - SQL_ENGINE=django.db.backends.postgresql
+      - SQL_DATABASE=tinpenny
+      - SQL_USER=tinpenny_root
+      - SQL_PASSWORD=tinpenny_password
+      - SQL_HOST=db
+      - SQL_PORT=5432
+
+volumes:
+  postgres_data:

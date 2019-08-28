@@ -13,6 +13,8 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     command: gunicorn TinPennyBackend.wsgi:application --bind 0.0.0.0:8000 
+    volumes:
+      - static_volume:/code/staticfiles
     expose:
       - 8000
     depends_on:
@@ -20,9 +22,12 @@ services:
     env_file: .env
   nginx:
     build: ./nginx
+    volumes:
+      - static_volume:/code/staticfiles
     ports:
       - 1337:80
     depends_on:
       - web
 volumes:
   postgres_data:
+  static_volume:

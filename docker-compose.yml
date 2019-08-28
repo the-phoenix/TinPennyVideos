@@ -29,6 +29,7 @@ services:
       - SQL_PASSWORD=tinpenny_password
       - SQL_HOST=db
       - SQL_PORT=5432
+      - DATABASE=postgres
 
 volumes:
   postgres_data:

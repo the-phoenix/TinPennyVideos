@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:11.5-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file: .env.db
+    ports:
+      - "55432:5432"
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: gunicorn TinPennyBackend.wsgi:application --bind 0.0.0.0:8000 
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file: .env
+
+volumes:
+  postgres_data:

@@ -4,6 +4,9 @@ FROM python:3
 # set environment variables
 ENV PYTHONUNBUFFERED 1
 
+# install dependencies
+RUN apt-get update && apt-get -y install netcat
+
 # set work directory
 RUN mkdir /code
 WORKDIR /code

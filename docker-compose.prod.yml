@@ -10,7 +10,7 @@ services:
       - "55432:5432"
   web:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile.prod
     command: gunicorn TinPennyBackend.wsgi:application --bind 0.0.0.0:8000 
     volumes:
@@ -28,6 +28,7 @@ services:
       - 1337:80
     depends_on:
       - web
+
 volumes:
   postgres_data:
   static_volume:

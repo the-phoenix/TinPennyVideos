@@ -1,5 +1,11 @@
 # pull official base image
-FROM python:3
+#FROM python:3
+
+# Had to downgrade to 3.6.9 to install pyyaml
+# pyyaml build doesn't work python3.7
+
+FROM python:3.6.9
+
 
 # set environment variables
 ENV PYTHONUNBUFFERED 1

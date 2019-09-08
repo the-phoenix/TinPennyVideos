@@ -21,3 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello_world', views.HelloWorld.as_view()),
 ]
+
+# Change Admin Title
+admin.site.site_header = "TinPenny Backend Office"
+admin.site.site_title = "TinPenny Backend Office"

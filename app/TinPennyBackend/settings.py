@@ -41,6 +41,7 @@ DEFAULT_APPS = [
 
 EXTERNAL_APPS = [
     'rest_framework',
+    'django_filters',
 ]
 
 LOCAL_APPS = [
@@ -133,3 +134,12 @@ USE_TZ = True
 
 STATIC_URL = '/staticfiles/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+
+# Rest framework config
+REST_FRAMEWORK = {
+    # When you enable API versioning, the request.version attribute will contain a string
+    # that corresponds to the version requested in the incoming client request.
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}

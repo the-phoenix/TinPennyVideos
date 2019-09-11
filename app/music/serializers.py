@@ -5,7 +5,7 @@ from .models import Song
 class SongSerializer(serializers.ModelSerializer):
     class Meta:
         model = Song
-        fields = ["title", "artist"]
+        fields = ["id", "title", "artist"]
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get("title", instance.title)

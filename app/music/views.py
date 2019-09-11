@@ -46,8 +46,7 @@ class ListCreateSongsView(generics.ListCreateAPIView):
             status=status.HTTP_201_CREATED
         )
 
-# class SongDetailView(generics.RetrieveUpdateDestroyAPIView):
-class SongDetailView(generics.RetrieveAPIView):
+class SongDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET songs/:id/
     PUT songs/:id/
@@ -68,9 +67,31 @@ class SongDetailView(generics.RetrieveAPIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-    # @validate_request_data
-    # def put(self, request, *args, **kwargs):
-    #     try:
-    #         a_song = self.queryset.get(pk=kwargs["pk"])
-    #         serializer = SongSerializer()
-    #         up
+    @validate_request_data
+    def put(self, request, *args, **kwargs):
+        try:
+            a_song = self.queryset.get(pk=kwargs["pk"])
+            serializer = SongSerializer()
+            updated_song = serializer.update(a_song, request.data)
+            return Response(SongSerializer(updated_song).data)
+        except Song.DoesNotExist:
+            return Response(
+                data={
+                    "message": "Song with id: {} does not exist".format(kwargs["pk"])
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            a_song = self.queryset.get(pk=kwargs["pk"])
+            a_song.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Song.DoesNotExist:
+            return Response(
+                data={
+                    "message": "Song with id: {} does not exist".format(kwargs["pk"])
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+

@@ -45,3 +45,32 @@ class ListCreateSongsView(generics.ListCreateAPIView):
             data=SongSerializer(a_song).data,
             status=status.HTTP_201_CREATED
         )
+
+# class SongDetailView(generics.RetrieveUpdateDestroyAPIView):
+class SongDetailView(generics.RetrieveAPIView):
+    """
+    GET songs/:id/
+    PUT songs/:id/
+    DELETE songs/:id/
+    """
+    queryset = Song.objects.all()
+    serializer_class = SongSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            a_song = self.queryset.get(pk=kwargs["pk"])
+            return Response(SongSerializer(a_song).data)
+        except Song.DoesNotExist:
+            return Response(
+                data={
+                    "message": "Song with id: {} does not exist".format(kwargs["pk"])
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    # @validate_request_data
+    # def put(self, request, *args, **kwargs):
+    #     try:
+    #         a_song = self.queryset.get(pk=kwargs["pk"])
+    #         serializer = SongSerializer()
+    #         up

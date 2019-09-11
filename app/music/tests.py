@@ -31,7 +31,7 @@ class GetAllSongsTest(BaseViewTest):
         """
         # hit the API endpoint
         response = self.client.get(
-            reverse("song-list", kwargs={"version": "v1"})
+            reverse("songs-list-create", kwargs={"version": "v1"})
             # reverse("song-list")
         )
         # fetch the data from db

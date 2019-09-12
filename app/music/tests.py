@@ -35,7 +35,10 @@ class BaseViewTest(APITestCase):
     @staticmethod
     def create_song(title="", artist=""):
         if title != "" and artist != "":
-            Song.objects.create(title=title, artist=artist)
+            new_song = Song.objects.create(title=title, artist=artist)
+
+            return new_song
+
 
     def login_a_user(self, username="", password=""):
         url = reverse(
@@ -53,6 +56,23 @@ class BaseViewTest(APITestCase):
             content_type="application/json"
         )
 
+    def login_client(self, username="", password=""):
+        # get a token from DRF
+        response = self.client.post(
+            reverse('create-token'),
+            data=json.dumps({
+                "username": username,
+                "password": password
+            }),
+            content_type="application/json"
+        )
+        self.token = response.data['token']
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Bearer ' + self.token
+        )
+        self.client.login(username=username, password=password)
+        return self.token
+
     def setUp(self):
         # create a admin user
         self.user = User.objects.create_superuser(
@@ -66,7 +86,7 @@ class BaseViewTest(APITestCase):
         self.create_song("like glue", "sean paul")
         self.create_song("simple song", "konshens")
         self.create_song("love is wicked", "brick and lace")
-        self.create_song("jam rock", "damien marley")
+        created_song = self.create_song("jam rock", "damien marley")
         self.valid_data = {
             "title": "test song",
             "artist": "test artist"
@@ -75,8 +95,8 @@ class BaseViewTest(APITestCase):
             "title": "",
             "artist": ""
         }
-        self.valid_song_id = 6
-        self.invalid_song_id = 100
+        self.valid_song_id = created_song.id
+        self.invalid_song_id = 99999
 
     def fetch_a_song(self, pk=0):
         return self.client.get(
@@ -128,6 +148,7 @@ class GetAllSongsTest(BaseViewTest):
         This test ensures that all songs added in the setUp method
         exist when we make a GET request to the songs/ endpoint
         """
+        self.login_client('test_user', 'testing')
         # hit the API endpoint
         response = self.client.get(
             reverse("songs-list-create", kwargs={"version": "v1"})
@@ -147,6 +168,7 @@ class GetASingleSongsTest(BaseViewTest):
         This test ensures that a single song of a given id is
         returned
         """
+        self.login_client('test_user', 'testing')
 
         # hit the API endpoint
         response = self.fetch_a_song(self.valid_song_id)
@@ -161,7 +183,7 @@ class GetASingleSongsTest(BaseViewTest):
         response = self.fetch_a_song(self.invalid_song_id)
         self.assertEqual(
             response.data["message"],
-            "Song with id: 100 does not exist"
+            "Song with id: {} does not exist".format(self.invalid_song_id)
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -172,6 +194,8 @@ class AddSongsTest(BaseViewTest):
         """
         This test ensures that a single song can be added
         """
+        self.login_client('test_user', 'testing')
+
         # hit the API endpoint
         response = self.make_a_request(
             kind="post",
@@ -180,7 +204,6 @@ class AddSongsTest(BaseViewTest):
         )
 
         del response.data["id"]
-
         self.assertEqual(response.data, self.valid_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # # test with invalid data

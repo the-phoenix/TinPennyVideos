@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = int(os.environ.get('DEBUG', default=0))
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-
+AUTH_USER_MODEL = "accounts.User"
 
 # Application definition
 
@@ -45,7 +45,7 @@ EXTERNAL_APPS = [
 ]
 
 LOCAL_APPS = [
-
+    'accounts.apps.AccountsConfig'
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + EXTERNAL_APPS + LOCAL_APPS

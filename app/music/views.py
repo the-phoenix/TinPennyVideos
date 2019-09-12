@@ -108,12 +108,16 @@ class LoginView(generics.CreateAPIView):
             # login saves the user's ID in the session.
             # using Django's session framework
             login(request, user)
+
             serializer = TokenSerializer(data={
                 "token": jwt_encode_handler(
                     jwt_payload_handler(user)
                 )
             })
+            # serializer.is_valid(raise_exception=True)
             serializer.is_valid()
+            # serializer.save()
+
             return Response(serializer.data)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 

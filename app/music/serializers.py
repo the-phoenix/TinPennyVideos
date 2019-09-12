@@ -1,3 +1,5 @@
+# from abc import ABC
+
 from rest_framework import serializers
 from .models import Song
 
@@ -12,6 +14,14 @@ class SongSerializer(serializers.ModelSerializer):
         instance.artist = validated_data.get("artist", instance.artist)
         instance.save()
         return instance
+
+
+class TokenSerializer(serializers.Serializer):
+    """
+    This serializer serializes the token data
+    """
+    token = serializers.CharField(max_length=255)
+
 
 # class SnippetSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)

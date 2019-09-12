@@ -1,12 +1,8 @@
-
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import generics, filters
 from rest_framework.response import Response
 from rest_framework.views import status
-
-
-# from django.shortcuts import render
 
 from .decorators import validate_request_data
 from .models import Song
@@ -45,6 +41,7 @@ class ListCreateSongsView(generics.ListCreateAPIView):
             data=SongSerializer(a_song).data,
             status=status.HTTP_201_CREATED
         )
+
 
 class SongDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -94,4 +91,3 @@ class SongDetailView(generics.RetrieveUpdateDestroyAPIView):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
-

@@ -1,4 +1,4 @@
-"""TinPennyBackend URL Configuration
+"""config URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.2/topics/http/urls/
@@ -14,12 +14,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include, re_path, reverse_lazy
+from django.views.generic.base import RedirectView
+
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
+
 from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello_world', views.HelloWorld.as_view()),
+    path('api-token-auth/', obtain_jwt_token, name='create-token'),
+    path('api-token-refresh/', refresh_jwt_token, name='refresh-token'),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    # the 'api-root' from django rest-frameworks default router
+    # http://www.django-rest-framework.org/api-guide/routers/#defaultrouter
+    # re_path(r'^$', RedirectView.as_view(url=reverse_lazy('api-root'), permanent=False)),
 ]
 
 # Change Admin Title

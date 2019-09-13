@@ -26,6 +26,7 @@ urlpatterns = [
     path('hello_world', views.HelloWorld.as_view()),
     path('api-token-auth/', obtain_jwt_token, name='create-token'),
     path('api-token-refresh/', refresh_jwt_token, name='refresh-token'),
+    # API Explorer auth endpoints
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     re_path('api/(?P<version>(v1|v2))/auth/', include('accounts.urls'))

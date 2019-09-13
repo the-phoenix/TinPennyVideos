@@ -1,0 +1,13 @@
+{% extends "rest_framework/login_base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+    {% trans 'TinPenny REST API' %}
+{% endblock %}
+
+{% block branding %}
+    <h3 style="margin: 0 0 20px;">
+        {% trans 'TinPenny REST API' %}
+    </h3>
+{% endblock %}

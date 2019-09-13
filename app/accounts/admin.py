@@ -14,8 +14,8 @@ class UserAdmin(BaseUserAdmin):
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
 
-    list_display = ('email', 'full_name', 'is_staff')
-    search_fields = ('full_name', 'email', 'birthday')
+    list_display = ('email', 'full_name', 'birthday', 'is_active', 'is_staff')
+    search_fields = ('first_name', 'last_name', 'email', 'birthday')
     ordering = ('email',)
 
     add_fieldsets = (
@@ -24,5 +24,6 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('email', 'first_name', 'last_name', 'birthday', 'password1', 'password2'),
         }),
     )
+
 
 admin.site.register(User, UserAdmin)

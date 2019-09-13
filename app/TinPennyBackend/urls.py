@@ -28,6 +28,8 @@ urlpatterns = [
     path('api-token-refresh/', refresh_jwt_token, name='refresh-token'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
+    re_path('api/(?P<version>(v1|v2))/auth/', include('accounts.urls'))
+
     # the 'api-root' from django rest-frameworks default router
     # http://www.django-rest-framework.org/api-guide/routers/#defaultrouter
     # re_path(r'^$', RedirectView.as_view(url=reverse_lazy('api-root'), permanent=False)),

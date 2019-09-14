@@ -1,10 +1,9 @@
-from rest_framework import generics, filters, permissions
+from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import status
 from rest_framework_jwt.settings import api_settings
 
 from django.contrib.auth import authenticate, login
-from django.db import IntegrityError
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 

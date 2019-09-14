@@ -17,7 +17,9 @@ from django.contrib import admin
 from django.urls import path, include, re_path, reverse_lazy
 from django.views.generic.base import RedirectView
 
-from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
+from rest_framework_jwt.views import (obtain_jwt_token,
+                                      refresh_jwt_token,
+                                      verify_jwt_token,)
 
 from . import views
 
@@ -26,10 +28,11 @@ urlpatterns = [
     path('hello_world', views.HelloWorld.as_view()),
     path('api-token-auth/', obtain_jwt_token, name='create-token'),
     path('api-token-refresh/', refresh_jwt_token, name='refresh-token'),
+    path('api-token-verify/', verify_jwt_token, name='verify-token'),
     # API Explorer auth endpoints
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    re_path('api/(?P<version>(v1|v2))/auth/', include('accounts.urls'))
+    re_path('api/(?P<version>(v1|v2))/accounts/', include('accounts.urls'))
 
     # the 'api-root' from django rest-frameworks default router
     # http://www.django-rest-framework.org/api-guide/routers/#defaultrouter

@@ -43,14 +43,16 @@ EXTERNAL_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_auth',
+    'rest_auth.registration',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
-    'rest_auth.registration',
+    'allauth.socialaccount', # Not required but have to keep - https://github.com/pennersr/django-allauth/issues/1975#issuecomment-384075169
 ]
 
 LOCAL_APPS = [
-    'accounts.apps.AccountsConfig'
+    'accounts.apps.AccountsConfig',
+    'api.apps.ApiConfig',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + EXTERNAL_APPS + LOCAL_APPS
@@ -149,7 +151,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
         'rest_framework.permissions.IsAuthenticatedOrReadOnly'
-        #'rest_framework.permissions.IsAuthenticated'
+        # 'rest_framework.permissions.IsAuthenticated'
     ],
     # Authentication settings
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -162,7 +164,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
-
 
 # JWT settings
 JWT_AUTH = {
@@ -205,7 +206,7 @@ REST_USE_JWT = True
 SITE_ID = 1
 
 REST_AUTH_SERIALIZERS = {
-    'LOGIN_SERIALIZER': 'accounts.serializers.UserSerializer',
+    'LOGIN_SERIALIZER': 'api.serializers.LoginSerializer',
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.UserSerializer',
 }
 
@@ -215,3 +216,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
+# EMAIL CONFIG (We're using for sending register confirm/password change emails...)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

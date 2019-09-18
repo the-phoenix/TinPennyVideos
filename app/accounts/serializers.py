@@ -10,7 +10,7 @@ class TokenSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=255)
 
 
-class UserSerializer(serializers.Serializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("email", "first_name", "last_name", "birthday")
+        fields = ("email", "first_name", "last_name", "dob")

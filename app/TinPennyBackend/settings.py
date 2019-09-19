@@ -53,6 +53,7 @@ EXTERNAL_APPS = [
 LOCAL_APPS = [
     'accounts.apps.AccountsConfig',
     'api.apps.ApiConfig',
+    'videos.apps.VideosConfig',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + EXTERNAL_APPS + LOCAL_APPS

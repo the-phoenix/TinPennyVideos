@@ -11,13 +11,15 @@ class Video(models.Model):
 
     source_url = models.URLField(_('URL to origin video in s3'), blank=False)
     source_thumbnail = models.URLField(_('URL to video thumbnail'), blank=True)
-    source_size_in_kb = models.IntegerField(_('video size in kilobytes'), blank=False)
 
-    duration_in_seconds = models.IntegerField(_('duration in seconds'), blank=True)
+    source_size_in_kb = models.IntegerField(_('video size in kilobytes'), blank=True, null=True)
+    duration_in_seconds = models.IntegerField(_('duration in seconds'), blank=True, null=True)
+
     stream_url = models.URLField(_('URL to converted stream video'), blank=True)
 
-    user = models.ForeignKey('accounts.User', related_name='videos', on_delete=models.CASCADE)
-    created = models.DateTimeField(editable=False)
+    publisher = models.ForeignKey('accounts.User', related_name='videos', on_delete=models.CASCADE)
+    is_private = models.BooleanField('is private?', default=False)
+    created = models.DateTimeField(default=timezone.now)
     modified = models.DateTimeField()
 
     # Might need category
@@ -29,9 +31,6 @@ class Video(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-
-        if not self.id:
-            self.created = timezone.now()
         self.modified = timezone.now()
 
         return super(Video, self).save(*args, **kwargs)

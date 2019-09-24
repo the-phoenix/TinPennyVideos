@@ -11,6 +11,8 @@ services:
       - POSTGRES_DB=tinpenny
     ports:
       - "55432:5432"
+  redis:
+    image: "redis:alpine"
   web:
     build: ./app
     command: python manage.py runserver 0.0.0.0:8000
@@ -20,6 +22,7 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     environment:
       - DEBUG=1
       - SECRET_KEY=foobar
@@ -30,6 +33,16 @@ services:
       - SQL_HOST=db
       - SQL_PORT=5432
       - DATABASE=postgres
+  celery:
+    build: ./app
+    command: celery -A TinPennyBackend worker -l info
+    volumes:
+      - ./app:/code
+    depends_on:
+      - db
+      - redis
+    environment:
+      - SECRET_KEY=foobar
 
 volumes:
   postgres_data:

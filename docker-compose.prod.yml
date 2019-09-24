@@ -8,6 +8,8 @@ services:
     env_file: .env.db
     ports:
       - "55432:5432"
+  redis:
+    image: "redis:alpine"
   web:
     build:
       context: ./app
@@ -19,6 +21,7 @@ services:
       - 8000
     depends_on:
       - db
+      - redis
     env_file: .env
   nginx:
     build: ./nginx
@@ -28,6 +31,16 @@ services:
       - 1337:80
     depends_on:
       - web
+  celery:
+    build: ./app
+    command: celery -A TinPennyBackend worker -l info
+    volumes:
+      - ./app:/code
+    depends_on:
+      - db
+      - redis
+    environment:
+      - SECRET_KEY=foobar
 
 volumes:
   postgres_data:

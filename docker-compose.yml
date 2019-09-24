@@ -18,12 +18,14 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./app:/code
+      - ~/.aws/:/root/.aws:ro
     ports:
       - "8000:8000"
     depends_on:
       - db
       - redis
     environment:
+      - AWS_PROFILE=default
       - DEBUG=1
       - SECRET_KEY=foobar
       - SQL_ENGINE=django.db.backends.postgresql

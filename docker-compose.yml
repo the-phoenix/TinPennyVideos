@@ -42,7 +42,15 @@ services:
       - db
       - redis
     environment:
+      - DEBUG=1
       - SECRET_KEY=foobar
+      - SQL_ENGINE=django.db.backends.postgresql
+      - SQL_DATABASE=tinpenny
+      - SQL_USER=tinpenny_root
+      - SQL_PASSWORD=tinpenny_password
+      - SQL_HOST=db
+      - SQL_PORT=5432
+      - DATABASE=postgres
 
 volumes:
   postgres_data:

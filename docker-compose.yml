@@ -40,10 +40,12 @@ services:
     command: celery -A TinPennyBackend worker -l info
     volumes:
       - ./app:/code
+      - ~/.aws/:/root/.aws:ro
     depends_on:
       - db
       - redis
     environment:
+      - AWS_PROFILE=default
       - DEBUG=1
       - SECRET_KEY=foobar
       - SQL_ENGINE=django.db.backends.postgresql

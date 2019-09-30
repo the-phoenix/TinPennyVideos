@@ -228,3 +228,7 @@ CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+
+# Media convert URL
+AWS_MEDIACONVERT_SQS_URL = "https://sqs.us-east-2.amazonaws.com/045342251993/simple-video-sharing-platform"

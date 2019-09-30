@@ -31,12 +31,12 @@ def retrieve_sqs_messages(sqs_queue_url, num_msgs=1, wait_time=0, visibility_tim
                                           MaxNumberOfMessages=num_msgs,
                                           WaitTimeSeconds=wait_time,
                                           VisibilityTimeout=visibility_time)
+
+        # Return the list of retrieved messages
+        return msgs['Messages']
     except ClientError as e:
         logging.error(e)
         return None
-
-    # Return the list of retrieved messages
-    return msgs['Messages']
 
 
 def delete_sqs_message(sqs_queue_url, msg_receipt_handle):
@@ -63,7 +63,7 @@ def parse_sqs_message(msg, logger):
         video_duration = None
         output_video_paths = None
         poster_thumbnail = None
-        source_path = detail["userMetadata"]["fileInput"]
+        src_key = detail["userMetadata"]["srcKey"]
 
         for output in detail["outputGroupDetails"]:
             if output["type"] == "CMAF_GROUP":  # Video output
@@ -77,7 +77,7 @@ def parse_sqs_message(msg, logger):
         logger.error(e)
         return None
 
-    return source_path, video_duration, poster_thumbnail, output_video_paths
+    return src_key, video_duration, poster_thumbnail, output_video_paths
 
 
 def is_existing_in_bucket(filename_in_bucket, bucket_name):

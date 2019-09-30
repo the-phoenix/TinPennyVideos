@@ -79,7 +79,7 @@ class Video(models.Model):
 
     def save(self, *args, **kwargs):
         # Once video's uploaded S3, it triggers convert automatically
-        if self.id is not None:
+        if self.id is None:
             self.mc_status = Video.STARTED
 
         return super(Video, self).save(*args, **kwargs)

@@ -237,5 +237,5 @@ AWS_MEDIACONVERT_SQS_URL = "https://sqs.us-east-2.amazonaws.com/045342251993/sim
 # S3 File Storage
 FILE_STORAGE_FOR_ORIGIN_VIDEO = 'storages.backends.s3boto3.S3Boto3Storage'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_STORAGE_BUCKET_NAME = 'johndoe-testing'
+AWS_STORAGE_BUCKET_NAME = 'simple-video-sharing-platform-t4-sourcebucket-qbi8jojzvlrk3p'
 AWS_S3_FILE_OVERWRITE = False

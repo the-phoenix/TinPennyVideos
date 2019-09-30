@@ -80,6 +80,25 @@ def parse_sqs_message(msg, logger):
     return source_path, video_duration, poster_thumbnail, output_video_paths
 
 
+def is_existing_in_bucket(filename_in_bucket, bucket_name):
+    s3 = boto3.client('s3')
+
+    try:
+        s3.head_object(Bucket=bucket_name, Key=filename_in_bucket)
+        return True
+    except ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            return False
+        else:
+            raise
+
+
+def remove_in_bucket(filename_in_bucket, bucket_name):
+    s3 = boto3.client('s3')
+
+    s3.delete_object(Bucket=bucket_name, Key=filename_in_bucket)
+
+
 def td_format(td_object):
     seconds = int(td_object.total_seconds())
     periods = [

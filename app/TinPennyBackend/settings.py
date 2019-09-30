@@ -48,12 +48,13 @@ EXTERNAL_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount', # Not required but have to keep - https://github.com/pennersr/django-allauth/issues/1975#issuecomment-384075169
+    'storages',
 ]
 
 LOCAL_APPS = [
     'accounts.apps.AccountsConfig',
     'api.apps.ApiConfig',
-    'videos.apps.VideosConfig',
+    'media.apps.MediaConfig',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + EXTERNAL_APPS + LOCAL_APPS
@@ -232,3 +233,9 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 # Media convert URL
 AWS_MEDIACONVERT_SQS_URL = "https://sqs.us-east-2.amazonaws.com/045342251993/simple-video-sharing-platform"
+
+# S3 File Storage
+FILE_STORAGE_FOR_ORIGIN_VIDEO = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_STORAGE_BUCKET_NAME = 'johndoe-testing'
+AWS_S3_FILE_OVERWRITE = False

@@ -1,20 +1,14 @@
-import datetime
-
 from uuid import uuid4
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
-from django.core import validators
-
-s3_path_validator = validators.RegexValidator(
-    regex='^s3://([^/]+)/(.*?([^/]+)/?)$',
-    message='Enter a valid S3 Path',
-)
+# from django.utils import timezone
+from django.conf import settings
+from .validators import s3_path_validator
 
 
 class S3PathField(models.CharField):
     description = _("S3 Path")
-    # '''URL field that accepts URLs that start with ssh:// only.'''
+    # '''URL field that accepts URLs that start with s3:// only.'''
     default_validators = [s3_path_validator]
 
     def __init__(self, *args, **kwargs):
@@ -32,6 +26,17 @@ class S3PathField(models.CharField):
 
 
 # Create your models here.
+
+class Category(models.Model):
+    name = models.CharField(_('Category of video'), max_length=100, blank=False)
+
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Video(models.Model):
     NOT_STARTED = 'not_started'
     STARTED = 'started'
@@ -49,27 +54,25 @@ class Video(models.Model):
     title = models.CharField(max_length=100, blank=False)
 
     # Expect client do S3 upload with unique name
-    source_path = S3PathField(_('Path to origin video in s3'),
-                              blank=False, unique=True)
-    source_size_in_kb = models.IntegerField(_('video size in kilobytes'), blank=True, null=True)
+    # origin = models.FileField(blank=True, unique=True, storage=settings.FILE_STORAGE_FOR_ORIGIN_VIDEO)
+    origin = models.FileField(blank=False)
+            # models.CharField(_('Key to origin video in s3 bucket'), max_length=200, blank=False, unique=True)
+    origin_size_in_kb = models.IntegerField(_('video size in kilobytes'), blank=True, null=True)
 
     poster_thumbnail = S3PathField(_('Path to poster frame for video'), blank=True)
-
     duration_in_ms = models.IntegerField(_('duration in milli seconds'), blank=True, null=True)
-    stream_path = models.CharField(_('Path to converted stream video'), max_length=200, blank=True, null=True)
-
-    convert_failure_reason = models.TextField(_('Reason for media convert failure'), null=True)
+    convert_failure_reason = models.TextField(_('Reason for media convert failure'), blank=True)
 
     publisher = models.ForeignKey('accounts.User', related_name='videos', on_delete=models.CASCADE)
-    is_private = models.BooleanField('is private?', default=False)
-    mc_status = models.CharField(choices=MEDIA_CONVERT_STATUSES, default=NOT_STARTED, blank=False)
-    created = models.DateTimeField(default=timezone.now)
-    modified = models.DateTimeField()
-
-    # Might need category
+    category = models.ForeignKey(Category, related_name='videos', on_delete=models.DO_NOTHING)
+    is_private = models.BooleanField(_('is private?'), default=False)
+    mc_status = models.CharField(choices=MEDIA_CONVERT_STATUSES, default=NOT_STARTED, blank=False, max_length=50)
+    failure_reason = models.TextField(_('Failure reason of media convert'), blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ('created',)
+        ordering = ('modified',)
 
     def __str__(self):
         return self.title
@@ -79,6 +82,17 @@ class Video(models.Model):
         if self.id is not None:
             self.mc_status = Video.STARTED
 
-        self.modified = timezone.now()
-
         return super(Video, self).save(*args, **kwargs)
+
+
+class Stream(models.Model):
+    origin = models.ForeignKey(Video, related_name='streams', on_delete=models.CASCADE)
+    path = S3PathField("Full S3 Path to converted video stream", blank=False)
+
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.path
+
+    #TODO: When its deleted, try to remove all related files in s3

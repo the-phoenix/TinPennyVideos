@@ -44,6 +44,7 @@ services:
     depends_on:
       - db
       - redis
+      - web
     environment:
       - AWS_PROFILE=default
       - DEBUG=1

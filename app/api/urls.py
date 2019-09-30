@@ -12,5 +12,5 @@ urlpatterns = [
     path('token-verify/', verify_jwt_token, name='verify-token'),
 
     path('accounts/', include('accounts.urls')),
-    path('videos/', include('videos.urls')),
+    path('media/', include('media.urls')),
 ]

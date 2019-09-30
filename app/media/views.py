@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, renderers, viewsets
+from rest_framework import permissions, viewsets
 
 from .models import Video
 from .serializers import VideoSerializer
@@ -15,8 +15,10 @@ class VideoViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
                           IsOwnerOrReadonly]
 
-    # def list(self, request, *args, **kwargs):
-    #     super().list(request, *args, **kwargs)
-
     def perform_create(self, serializer):
-        serializer.save(publisher=self.request.user)
+        source_path = self.request.data.get('source_path')
+        publisher = self.requeset.user
+        if source_path is not None:
+            return serializer.save(source=source_path, publisher=publisher)
+
+        return serializer.save(publisher=publisher)

@@ -1,6 +1,7 @@
 from uuid import uuid4
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from urllib.parse import urlparse
 # from django.utils import timezone
 from django.conf import settings
 from .validators import s3_path_validator
@@ -28,10 +29,14 @@ class S3PathField(models.CharField):
 # Create your models here.
 
 class Category(models.Model):
-    name = models.CharField(_('Category of video'), max_length=100, blank=False)
+    name = models.CharField(_('Name of category'), max_length=100, blank=False)
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
 
     def __str__(self):
         return self.name
@@ -66,7 +71,7 @@ class Video(models.Model):
     publisher = models.ForeignKey('accounts.User', related_name='videos', on_delete=models.CASCADE)
     category = models.ForeignKey(Category, related_name='videos', on_delete=models.DO_NOTHING)
     is_private = models.BooleanField(_('is private?'), default=False)
-    mc_status = models.CharField(choices=MEDIA_CONVERT_STATUSES, default=NOT_STARTED, blank=False, max_length=50)
+    mc_status = models.CharField(_('Media convert status'), choices=MEDIA_CONVERT_STATUSES, default=NOT_STARTED, blank=False, max_length=50)
     failure_reason = models.TextField(_('Failure reason of media convert'), blank=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -83,6 +88,14 @@ class Video(models.Model):
             self.mc_status = Video.STARTED
 
         return super(Video, self).save(*args, **kwargs)
+
+    @property
+    def poster_thumbnail_distribute(self):
+        if self.poster_thumbnail is None:
+            return None
+        parsed = urlparse(self.poster_thumbnail)
+        return '/'.join(["https:/", settings.CLOUDFRONT_DNS_NAME, parsed.path.strip('/')])
+
 
 
 class Stream(models.Model):

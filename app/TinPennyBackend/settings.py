@@ -233,6 +233,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 # Media convert URL
 AWS_MEDIACONVERT_SQS_URL = "https://sqs.us-east-2.amazonaws.com/045342251993/simple-video-sharing-platform"
+CLOUDFRONT_DNS_NAME = "d19q217zz3goo.cloudfront.net"
 
 # S3 File Storage
 FILE_STORAGE_FOR_ORIGIN_VIDEO = 'storages.backends.s3boto3.S3Boto3Storage'

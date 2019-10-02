@@ -1,7 +1,3 @@
-import json
-import os
-import os.path
-
 from django.conf import settings
 from celery.decorators import task, periodic_task
 from celery.utils.log import get_task_logger
@@ -16,10 +12,10 @@ logger = get_task_logger(__name__)
 def save_converted_video_urls():
     """Load convert result from SQS and save into database"""
 
-    msgs = retrieve_sqs_messages(settings.AWS_MEDIACONVERT_SQS_URL, 10, 5, 60)
+    sqs_url = settings.AWS_MEDIACONVERT_SQS_URL
+    msgs = retrieve_sqs_messages(sqs_url, 10, 5, 60)
     if msgs is None:
         return
-    print ("Messages that we've got", msgs)
 
     for msg in msgs:
         parsed = parse_sqs_message(msg, logger)
@@ -30,8 +26,10 @@ def save_converted_video_urls():
 
         try:
             video = Video.objects.get(origin=src_key)
+
         except Video.DoesNotExist:
             logger.info("Video not found for {}".format(src_key))
+            delete_sqs_message(sqs_url, msg['ReceiptHandle'])
             continue
 
         for stream_path in playlist_paths:
@@ -41,5 +39,6 @@ def save_converted_video_urls():
         video.poster_thumbnail = poster_thumbnail
         video.mc_status = Video.SUCCEEDED
         video.save()
-        logger.info("Successfully updated media convert success result for {}".format(src_key))
 
+        delete_sqs_message(sqs_url, msg['ReceiptHandle'])
+        logger.info("Successfully updated media convert success result for {}".format(src_key))

@@ -19,7 +19,7 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
     def is_valid(self, *args, **kwargs):
         origin_path = self.initial_data.get('origin_path')
         if origin_path is not None:
-            if not is_existing_in_bucket(origin_path, settings.AWS_STORAGE_BUCKET_NAME):
+            if not is_existing_in_bucket(bucket=settings.AWS_STORAGE_BUCKET_NAME, key=origin_path):
                 raise serializers.ValidationError("Not existing in S3 bucket!")
 
         return super(VideoSerializer, self).is_valid(*args, **kwargs)

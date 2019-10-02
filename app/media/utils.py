@@ -1,7 +1,10 @@
 import logging
 import boto3
 import json
+import os
+
 from botocore.exceptions import ClientError
+from uuid import uuid4
 
 
 def retrieve_sqs_messages(sqs_queue_url, num_msgs=1, wait_time=0, visibility_time=5):
@@ -37,6 +40,8 @@ def retrieve_sqs_messages(sqs_queue_url, num_msgs=1, wait_time=0, visibility_tim
     except ClientError as e:
         logging.error(e)
         return None
+    except KeyError:
+        return []
 
 
 def delete_sqs_message(sqs_queue_url, msg_receipt_handle):
@@ -48,8 +53,11 @@ def delete_sqs_message(sqs_queue_url, msg_receipt_handle):
 
     # Delete the message from the SQS queue
     sqs_client = boto3.client('sqs')
-    sqs_client.delete_message(QueueUrl=sqs_queue_url,
-                              ReceiptHandle=msg_receipt_handle)
+    try:
+        sqs_client.delete_message(QueueUrl=sqs_queue_url,
+                                  ReceiptHandle=msg_receipt_handle)
+    except ClientError as e:
+        logging.error(e)
 
 
 def parse_sqs_message(msg, logger):
@@ -80,11 +88,11 @@ def parse_sqs_message(msg, logger):
     return src_key, video_duration, poster_thumbnail, output_video_paths
 
 
-def is_existing_in_bucket(filename_in_bucket, bucket_name):
+def is_existing_in_bucket(bucket, key):
     s3 = boto3.client('s3')
 
     try:
-        s3.head_object(Bucket=bucket_name, Key=filename_in_bucket)
+        s3.head_object(Bucket=bucket, Key=key)
         return True
     except ClientError as e:
         if e.response['Error']['Code'] == "404":
@@ -93,10 +101,63 @@ def is_existing_in_bucket(filename_in_bucket, bucket_name):
             raise
 
 
-def remove_in_bucket(filename_in_bucket, bucket_name):
+def remove_in_bucket(bucket, key):
     s3 = boto3.client('s3')
 
-    s3.delete_object(Bucket=bucket_name, Key=filename_in_bucket)
+    try:
+        s3.delete_object(Bucket=bucket, Key=key)
+        return True
+    except ClientError:
+        return False
+
+
+def get_matching_s3_objects(bucket, prefix="", suffix=""):
+    """
+    Generate objects in an S3 bucket.
+
+    :param bucket: Name of the S3 bucket.
+    :param prefix: Only fetch objects whose key starts with
+        this prefix (optional).
+    :param suffix: Only fetch objects whose keys end with
+        this suffix (optional).
+    """
+    s3 = boto3.client("s3")
+    paginator = s3.get_paginator("list_objects_v2")
+
+    kwargs = {'Bucket': bucket}
+
+    # We can pass the prefix directly to the S3 API.  If the user has passed
+    # a tuple or list of prefixes, we go through them one by one.
+    if isinstance(prefix, str):
+        prefixes = (prefix, )
+    else:
+        prefixes = prefix
+
+    for key_prefix in prefixes:
+        kwargs["Prefix"] = key_prefix
+
+        for page in paginator.paginate(**kwargs):
+            try:
+                contents = page["Contents"]
+            except KeyError:
+                return
+
+            for obj in contents:
+                key = obj["Key"]
+                if key.endswith(suffix):
+                    yield obj
+
+
+def get_matching_s3_keys(bucket, prefix="", suffix=""):
+    """
+    Generate the keys in an S3 bucket.
+
+    :param bucket: Name of the S3 bucket.
+    :param prefix: Only fetch keys that start with this prefix (optional).
+    :param suffix: Only fetch keys that end with this suffix (optional).
+    """
+    for obj in get_matching_s3_objects(bucket, prefix, suffix):
+        yield obj["Key"]
 
 
 def td_format(td_object):
@@ -118,3 +179,16 @@ def td_format(td_object):
             strings.append("%s %s%s" % (period_value, period_name, has_s))
 
     return " ".join(strings)
+
+
+def path_and_rename(instance, filename):
+    upload_to = instance.category.name.lower() if instance.category is not None else 'default'
+    ext = filename.split('.')[-1]
+    # get filename
+    if instance.pk:
+        filename = '{}.{}'.format(instance.pk, ext)
+    else:
+        # set filename as random string
+        filename = '{}.{}'.format(uuid4(), ext)
+
+    return os.path.join(upload_to, filename)

@@ -12,7 +12,7 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Video
         fields = ('id', 'title', 'origin', 'origin_size_in_kb', 'category', 'poster_thumbnail',
                   'duration_in_ms', 'mc_status', 'streams', 'failure_reason',
-                  'publisher', 'is_private', 'created', 'modified',)
+                  'publisher', 'is_public', 'created', 'modified',)
         read_only_fields = ('id', 'poster_thumbnail', 'publisher',
                             'duration_in_ms', 'created', 'modified')
 
@@ -23,3 +23,15 @@ class VideoSerializer(serializers.HyperlinkedModelSerializer):
                 raise serializers.ValidationError("Not existing in S3 bucket!")
 
         return super(VideoSerializer, self).is_valid(*args, **kwargs)
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Category
+        fields = '__all__'
+
+
+class StreamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Stream
+        fields = '__all__'

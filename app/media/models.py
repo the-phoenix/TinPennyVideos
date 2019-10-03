@@ -1,4 +1,5 @@
 from uuid import uuid4
+from django import forms
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from urllib.parse import urlparse
@@ -7,6 +8,7 @@ from django.conf import settings
 from .validators import s3_path_validator
 from .tasks_without_model import remove_video_files, remove_stream_files
 from .utils import path_and_rename
+
 
 class S3PathField(models.CharField):
     description = _("S3 Path")
@@ -25,6 +27,14 @@ class S3PathField(models.CharField):
         if kwargs.get("help_text") == "Format: s3://{bucket name}/{file name}":
             del kwargs['help_text']
         return name, path, args, kwargs
+
+    def formfield(self, **kwargs):
+        # As with CharField, this will cause URL validation to be performed
+        # twice.
+        return super().formfield(**{
+            'form_class': forms.URLField,
+            **kwargs,
+        })
 
 
 # Create your models here.
@@ -69,7 +79,7 @@ class Video(models.Model):
 
     publisher = models.ForeignKey('accounts.User', related_name='videos', on_delete=models.CASCADE)
     category = models.ForeignKey(Category, related_name='videos', on_delete=models.DO_NOTHING)
-    is_private = models.BooleanField(_('is private?'), default=False)
+    is_public = models.BooleanField(_('Is public?'), default=True)
     mc_status = models.CharField(_('Media convert status'), choices=MEDIA_CONVERT_STATUSES, default=NOT_STARTED,
                                  help_text=_('Updated by celery jobs. Do not update manually'), blank=False, max_length=50)
     failure_reason = models.TextField(_('Failure reason of media convert'), blank=True)

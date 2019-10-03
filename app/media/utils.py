@@ -3,6 +3,7 @@ import boto3
 import json
 import os
 
+from urllib.parse import urlparse
 from botocore.exceptions import ClientError
 from uuid import uuid4
 

@@ -54,7 +54,8 @@ EXTERNAL_APPS = [
 LOCAL_APPS = [
     'accounts.apps.AccountsConfig',
     'api.apps.ApiConfig',
-    'media.apps.MediaConfig',
+    # 'media.apps.MediaConfig',
+    'media',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + EXTERNAL_APPS + LOCAL_APPS
@@ -239,4 +240,5 @@ CLOUDFRONT_DNS_NAME = "d19q217zz3goo.cloudfront.net"
 FILE_STORAGE_FOR_ORIGIN_VIDEO = 'storages.backends.s3boto3.S3Boto3Storage'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_STORAGE_BUCKET_NAME = 'simple-video-sharing-platform-t4-sourcebucket-qbi8jojzvlrk3p'
+AWS_STREAM_STORAGE_BUCKET_NAME = 'simple-video-sharing-platform-t-destinationbucket-qgx2mv4zsg9g'
 AWS_S3_FILE_OVERWRITE = False

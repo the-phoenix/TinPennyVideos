@@ -5,16 +5,25 @@ from .utils import is_existing_in_bucket
 
 
 class VideoSerializer(serializers.HyperlinkedModelSerializer):
-    # user = serializers.HyperlinkedRelatedField(view_name='user-detail', read_only=True, lookup_field="id", lookup_url_kwarg="pk")
+
     publisher = serializers.ReadOnlyField(source='publisher.id')
+    category_name = serializers.ReadOnlyField(source='category.name')
+    # category_name = serializers.RelatedField(source='category', read_only=True)
+    streams = serializers.SlugRelatedField(many=True, read_only=True, slug_field='path_distributed')
 
     class Meta:
         model = models.Video
-        fields = ('id', 'title', 'origin', 'origin_size_in_kb', 'category', 'poster_thumbnail',
+        fields = ('id', 'title', 'origin', 'origin_size_in_kb', 'category',
+                  'poster_thumbnail_distributed', 'category_name',
                   'duration_in_ms', 'mc_status', 'streams', 'failure_reason',
                   'publisher', 'is_public', 'created', 'modified',)
-        read_only_fields = ('id', 'poster_thumbnail', 'publisher',
+
+        read_only_fields = ('id', 'publisher', 'mc_status', 'failure_reason',
                             'duration_in_ms', 'created', 'modified')
+        extra_kwargs = {
+            'category': {'write_only': True},
+            'origin': {'write_only': True},
+        }
 
     def is_valid(self, *args, **kwargs):
         origin_path = self.initial_data.get('origin_path')
@@ -32,6 +41,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class StreamSerializer(serializers.ModelSerializer):
+    path_distributed = serializers.ReadOnlyField()
+
     class Meta:
         model = models.Stream
         fields = '__all__'

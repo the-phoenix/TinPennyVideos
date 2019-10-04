@@ -1,13 +1,14 @@
 from uuid import uuid4
 from django import forms
+from django.core.validators import FileExtensionValidator
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from urllib.parse import urlparse
-from django.conf import settings
+
 
 from .validators import s3_path_validator
 from .tasks_without_model import remove_video_files, remove_stream_files
-from .utils import path_and_rename
+from .utils import path_and_rename, s3_to_http_schema
 
 
 class S3PathField(models.CharField):
@@ -71,7 +72,8 @@ class Video(models.Model):
 
     # Expect client do S3 upload with unique name
     # origin = models.FileField(blank=True, unique=True, storage=settings.FILE_STORAGE_FOR_ORIGIN_VIDEO)
-    origin = models.FileField(blank=False, upload_to=path_and_rename)
+    origin = models.FileField(blank=False, upload_to=path_and_rename,
+                              validators=[FileExtensionValidator(allowed_extensions=settings.ACCEPTABLE_VIDEO_FILE_EXTENSIONS)])
     origin_size_in_kb = models.IntegerField(_('video size in kilobytes'), blank=True, null=True)
 
     poster_thumbnail = S3PathField(_('Path to poster frame for video'), blank=True)
@@ -93,11 +95,13 @@ class Video(models.Model):
         return self.title
 
     @property
-    def poster_thumbnail_distribute(self):
+    def poster_thumbnail_distributed(self):
         if self.poster_thumbnail is None:
             return None
-        parsed = urlparse(self.poster_thumbnail)
-        return '/'.join(["https:/", settings.CLOUDFRONT_DNS_NAME, parsed.path.strip('/')])
+
+        http_urls = s3_to_http_schema(self.poster_thumbnail)
+
+        return http_urls["distributed"]
 
     def save(self, *args, **kwargs):
         # Once video's uploaded S3, it triggers convert automatically
@@ -123,6 +127,15 @@ class Stream(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    @property
+    def path_distributed(self):
+        if self.path is None:
+            return None
+
+        http_urls = s3_to_http_schema(self.path)
+
+        return http_urls["distributed"]
 
     def __str__(self):
         return self.path

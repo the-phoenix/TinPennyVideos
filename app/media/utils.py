@@ -6,6 +6,7 @@ import os
 from urllib.parse import urlparse
 from botocore.exceptions import ClientError
 from uuid import uuid4
+from django.conf import settings
 
 
 def retrieve_sqs_messages(sqs_queue_url, num_msgs=1, wait_time=0, visibility_time=5):
@@ -130,7 +131,7 @@ def get_matching_s3_objects(bucket, prefix="", suffix=""):
     # We can pass the prefix directly to the S3 API.  If the user has passed
     # a tuple or list of prefixes, we go through them one by one.
     if isinstance(prefix, str):
-        prefixes = (prefix, )
+        prefixes = (prefix,)
     else:
         prefixes = prefix
 
@@ -161,21 +162,44 @@ def get_matching_s3_keys(bucket, prefix="", suffix=""):
         yield obj["Key"]
 
 
+def create_presigned_url(bucket, key, expiration=3600):
+    """Generate a presigned URL to share an S3 object
+
+    :param bucket_name: string
+    :param object_name: string
+    :param expiration: Time in seconds for the presigned URL to remain valid
+    :return: Presigned URL as string. If error, returns None.
+    """
+
+    # Generate a presigned URL for the S3 object
+    s3 = boto3.client('s3')
+    try:
+        response = s3.generate_presigned_url('get_object',
+                                             Params={'Bucket': bucket,
+                                                     'Key': key},
+                                             ExpiresIn=expiration)
+    except ClientError as e:
+        logging.error(e)
+        return None
+
+    return response
+
+
 def td_format(td_object):
     seconds = int(td_object.total_seconds())
     periods = [
-        ('year',        60*60*24*365),
-        ('month',       60*60*24*30),
-        ('day',         60*60*24),
-        ('hour',        60*60),
-        ('min',      60),
-        ('sec',      1)
+        ('year', 60 * 60 * 24 * 365),
+        ('month', 60 * 60 * 24 * 30),
+        ('day', 60 * 60 * 24),
+        ('hour', 60 * 60),
+        ('min', 60),
+        ('sec', 1)
     ]
 
-    strings=[]
+    strings = []
     for period_name, period_seconds in periods:
         if seconds > period_seconds:
-            period_value , seconds = divmod(seconds, period_seconds)
+            period_value, seconds = divmod(seconds, period_seconds)
             has_s = 's' if period_value > 1 else ''
             strings.append("%s %s%s" % (period_value, period_name, has_s))
 
@@ -193,3 +217,17 @@ def path_and_rename(instance, filename):
         filename = '{}.{}'.format(uuid4(), ext)
 
     return os.path.join(upload_to, filename)
+
+
+def s3_to_http_schema(s3_uri, need_pre_signed=False):
+    parsed = urlparse(s3_uri)
+    bucket = parsed.netloc
+    key = parsed.path.strip('/')
+
+    console = "https://s3.console.aws.amazon.com/s3/object/{0}/{1}?tab=overview".format(bucket, key)
+    pre_signed = create_presigned_url(bucket, key) if need_pre_signed is True else None
+    distributed = "https://{0}/{1}".format(settings.CLOUDFRONT_DNS_NAME, key) \
+        if bucket == settings.AWS_STREAM_STORAGE_BUCKET_NAME \
+        else None
+
+    return {'console': console, 'pre_signed': pre_signed, 'distributed': distributed}

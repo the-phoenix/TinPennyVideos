@@ -27,11 +27,14 @@ def save_converted_video_urls():
 
         try:
             video = Video.objects.get(origin=src_key)
-
+            logger.info("Video entry found for {} s3 origin file".format(src_key))
         except Video.DoesNotExist:
             logger.info("Video not found for {}".format(src_key))
             delete_sqs_message(sqs_url, msg['ReceiptHandle'])
             continue
+
+        if playlist_paths is None:
+            return
 
         for stream_path in playlist_paths:
             Stream.objects.create(path=stream_path, origin=video)

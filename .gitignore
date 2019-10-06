@@ -88,3 +88,7 @@ local_settings.py
 .env
 .env.db
 db.sqlite3
+
+# Celery files
+app/celerybeat-schedule
+app/celerybeat.pid

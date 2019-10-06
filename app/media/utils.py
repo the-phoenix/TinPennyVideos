@@ -62,7 +62,7 @@ def delete_sqs_message(sqs_queue_url, msg_receipt_handle):
         logging.error(e)
 
 
-def parse_sqs_message(msg, logger):
+def parse_sqs_success_message(msg, logger):
     # logging.info(f'SQS: Message ID: {msg["MessageId"]}, '
     #              f'Contents: {msg["Body"]}')
 
@@ -88,6 +88,21 @@ def parse_sqs_message(msg, logger):
         return None
 
     return src_key, video_duration, poster_thumbnail, output_video_paths
+
+
+def parse_sqs_failure_message(msg, logger):
+
+    try:
+        mediaConvertResponse = json.loads(msg["Body"])
+        detail = mediaConvertResponse["detail"]
+
+        src_key = detail["userMetadata"]["srcKey"]
+        error_msg = detail["errorMessage"]
+        return src_key, error_msg
+
+    except json.JSONDecodeError as e:
+        logger.error(e)
+        return None
 
 
 def is_existing_in_bucket(bucket, key):

@@ -233,7 +233,8 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 
 # Media Related Settings
-AWS_MEDIACONVERT_SQS_URL = "https://sqs.us-east-2.amazonaws.com/045342251993/simple-video-sharing-platform"
+AWS_MEDIACONVERT_SQS_SUCCESS_URL = "https://sqs.us-east-2.amazonaws.com/045342251993/simple-video-sharing-platform"
+AWS_MEDIACONVERT_SQS_FAILURE_URL = "https://sqs.us-east-2.amazonaws.com/045342251993/simple-video-sharing-platform_failure"
 CLOUDFRONT_DNS_NAME = "d19q217zz3goo.cloudfront.net"
 ACCEPTABLE_VIDEO_FILE_EXTENSIONS = ["mp4", "mpg", "mov", "mpeg"]
 

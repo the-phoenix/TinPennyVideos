@@ -49,18 +49,19 @@ EXTERNAL_APPS = [
     'allauth.account',
     'allauth.socialaccount', # Not required but have to keep - https://github.com/pennersr/django-allauth/issues/1975#issuecomment-384075169
     'storages',
+    'corsheaders',
 ]
 
 LOCAL_APPS = [
     'accounts.apps.AccountsConfig',
     'api.apps.ApiConfig',
-    # 'media.apps.MediaConfig',
-    'media',
+    'media.apps.MediaConfig',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + EXTERNAL_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'TinPennyBackend.cors.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'TinPennyBackend.urls'
@@ -152,7 +154,7 @@ REST_FRAMEWORK = {
 
     # Permission settings
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        # 'rest_framework.permissions.DjangoREST_FRAMEWORKModelPermissionsOrAnonReadOnly'
         'rest_framework.permissions.IsAuthenticatedOrReadOnly'
         # 'rest_framework.permissions.IsAuthenticated'
     ],
@@ -165,7 +167,7 @@ REST_FRAMEWORK = {
 
     # Pagination
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 20
 }
 
 # JWT settings
@@ -244,3 +246,8 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_STORAGE_BUCKET_NAME = 'simple-video-sharing-platform-t4-sourcebucket-qbi8jojzvlrk3p'
 AWS_STREAM_STORAGE_BUCKET_NAME = 'simple-video-sharing-platform-t-destinationbucket-qgx2mv4zsg9g'
 AWS_S3_FILE_OVERWRITE = False
+
+# Cors header
+# Somehow its not working, had to depend on custom middleware to resolve CORS
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = False

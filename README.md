@@ -1,4 +1,8 @@
-# TinPennyBackend Project
+# TinPennyVideos 
+
+## Description
+
+Youtube like video sharing website. It utilizes AWS services to store/transcode/stream videos.
 
 ## How Run
 

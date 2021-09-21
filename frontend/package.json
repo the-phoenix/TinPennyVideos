@@ -10,7 +10,7 @@
     "connected-react-router": "^6.5.2",
     "history": "^4.10.1",
     "hls.js": "0.8.8",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "node-sass": "^4.13.1",
     "nprogress": "^0.2.0",
     "react": "^16.10.2",

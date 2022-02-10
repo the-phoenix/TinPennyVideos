@@ -11,7 +11,7 @@
     "history": "^4.10.1",
     "hls.js": "0.8.8",
     "lodash": "^4.17.19",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "nprogress": "^0.2.0",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
